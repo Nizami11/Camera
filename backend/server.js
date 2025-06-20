@@ -9,7 +9,7 @@
 // app.use(cors());
 // app.use(bodyParser.json({ limit: '10mb' }));
 
-// mongoose.connect('mongodb+srv://asnizami442:Abdullah_19@cluster0.klbhx7n.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0', {
+// mongoose.connect('mongodb+srv', {
 //   useNewUrlParser: true,
 //   useUnifiedTopology: true,
 // });
