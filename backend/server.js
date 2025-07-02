@@ -1,54 +1,44 @@
-// const express = require('express');
-// const mongoose = require('mongoose');
-// const bodyParser = require('body-parser');
-// const cors = require('cors');
+const express = require('express');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const cors = require('cors');
 
-// const app = express();
-// const PORT = 5000;
+const app = express();
+const PORT = 5000;
 
-// app.use(cors());
-// app.use(bodyParser.json({ limit: '10mb' }));
+app.use(cors());
+app.use(bodyParser.json({ limit: '10mb' }));
 
-// mongoose.connect('mongodb+srv', {
-//   useNewUrlParser: true,
-//   useUnifiedTopology: true,
-// });
-// const db = mongoose.connection;
-// db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-// db.once('open', () => console.log('MongoDB connected!'));
+// ✅ Local MongoDB URI
+mongoose.connect('mongodb://localhost:27017/CameraDB', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
 
-// const ImageSchema = new mongoose.Schema({
-//   data: String,
-//   timestamp: {
-//     type: Date,
-//     default: Date.now,
-//   },
-// });
-// const Image = mongoose.model('Image', ImageSchema);
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.once('open', () => console.log('MongoDB connected!'));
 
-// app.post('/api/images', async (req, res) => {
-//   try {
-//     const { imageData } = req.body;
-//     const newImage = new Image({ data: imageData });
-//     await newImage.save();
-//     res.status(201).json({ message: 'Image saved successfully' });
-//   } catch (error) {
-//     res.status(500).json({ message: 'Error saving image', error });
-//   }
-// });
+const ImageSchema = new mongoose.Schema({
+  data: String,
+  timestamp: {
+    type: Date,
+    default: Date.now,
+  },
+});
+const Image = mongoose.model('Image', ImageSchema);
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
+app.post('/api/images', async (req, res) => {
+  try {
+    const { imageData } = req.body;
+    const newImage = new Image({ data: imageData });
+    await newImage.save();
+    res.status(201).json({ message: 'Image saved successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error saving image', error });
+  }
+});
 
-let isfaqvisible=false;
-
-const togglefaq=()=>
-{
-  isfaqvisible=!isfaqvisible;
-
-  return isfaqvisible ? "yes": "no";
-}
-
-console.log(togglefaq());
-console.log(togglefaq());
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
