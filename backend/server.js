@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+require('dotenv').config(); // ✅ Load env vars
 
 const app = express();
 const PORT = 5000;
@@ -9,8 +10,8 @@ const PORT = 5000;
 app.use(cors());
 app.use(bodyParser.json({ limit: '10mb' }));
 
-// ✅ Local MongoDB URI
-mongoose.connect('mongodb://localhost:27017/CameraDB', {
+// ✅ Correct: Use env variable without quotes
+mongoose.connect(process.env.MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
