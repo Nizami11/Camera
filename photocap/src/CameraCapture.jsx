@@ -112,7 +112,7 @@ const CameraCapture = () => {
           Start Camera
         </button>
         <button onClick={captureImage} style={{ marginRight: '10px' }}>
-          Capture Image
+          pc lelo
         </button>
         <button onClick={clearImages} style={{ backgroundColor: 'red', color: 'white' }}>
           Clear Images
