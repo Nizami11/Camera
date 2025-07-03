@@ -1,4 +1,4 @@
-name: Fullstack CI/CD Pipeline
+name: CI/CD Pipeline for MERN App
 
 on:
   push:
@@ -6,61 +6,27 @@ on:
       - master
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout source code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
-      # 2. Setup Node.js environment
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
+    - name: Setup SSH Key
+      uses: webfactory/ssh-agent@v0.8.1
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # 3. Install & build frontend
-      - name: Build React frontend
-        working-directory: photocap
-        run: |
-          npm install
-          npm run build
-
-      # 4. Install backend dependencies (optional if using Docker)
-      - name: Install backend dependencies
-        working-directory: backend
-        run: npm install
-
-      # 5. Copy frontend build & backend files to server
-      - name: Copy files to VPS
-        uses: appleboy/scp-action@v0.1.6
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "photocap/build, backend"
-          target: "/home/${{ secrets.REMOTE_USER }}/Camera"
-
-      # 6. SSH into server: Build and restart Docker container
-      - name: SSH Deploy & Docker Restart
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd ~/Camera/backend
-
-            echo "Stopping old container"
-            docker stop Camera || true
-            docker rm Camera || true
-
-            echo "Building new Docker image"
-            docker build -t Camera .
-
-            echo "Starting container"
-            docker run -d --name Camera -p 5000:5000 myapp
-
-            echo "Reloading NGINX"
-            sudo systemctl reload nginx
+    - name: Copy files to server
+      run: |
+        ssh -o StrictHostKeyChecking=no user@65.1.135.220 << 'EOF'
+          cd /home/user/Camera
+          git pull origin master
+          docker stop backend || true && docker rm backend || true
+          docker stop frontend || true && docker rm frontend || true
+          docker build -t mern-frontend ./frontend
+          docker build -t mern-backend ./backend
+          docker run -d --name backend -p 5000:5000 mern-backend
+          docker run -d --name frontend -p 80:80 mern-frontend
+        EOF
