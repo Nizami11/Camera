@@ -89,7 +89,7 @@ const CameraCapture = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Bestiiiooooo Cameeeerrrraaaaa</h2>
+      <h2>My boiiii</h2>
 
       <video
         ref={videoRef}
