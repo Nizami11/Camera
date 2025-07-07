@@ -1,0 +1,79 @@
+name: Simple MERN Workflow
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  test-build-deploy:
+    runs-on: self-hosted  # runner is inside the target server
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm install
+
+    - name: Install frontend dependencies
+      run: |
+        cd photocap
+        npm install
+
+    - name: Run backend tests
+      run: |
+        cd backend
+        npm test
+      continue-on-error: true
+
+    - name: Run frontend tests
+      run: |
+        cd photocap
+        npm test -- --run
+      continue-on-error: true
+
+    - name: Build frontend
+      run: |
+        cd photocap
+        npm run build
+
+    - name: ✅ Build completed
+      run: echo "✅ Build completed successfully!"
+
+    - name: 🐳 Stop existing containers
+      run: |
+        sudo docker stop mybackend || true
+        sudo docker rm mybackend || true
+        sudo docker stop myfrontend || true
+        sudo docker rm myfrontend || true
+
+    - name: 🛠️ Build Docker images
+      run: |
+        sudo docker build -t mern-backend ./backend
+        sudo docker build -t mern-frontend ./photocap
+
+    - name: 🚀 Run backend container
+      run: |
+        sudo docker run -d \
+          --name mybackend \
+          --network mynet \
+          -p 5000:5000 \
+          -e MONGODB_URI=mongodb://mongodb:27017/your-db-name \
+          mern-backend
+
+    - name: 🚀 Run frontend container
+      run: |
+        sudo docker run -d \
+          --name myfrontend \
+          --network mynet \
+          -p 80:80 \
+          mern-frontend
