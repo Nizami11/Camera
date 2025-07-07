@@ -75,6 +75,7 @@ const CameraCapture = () => {
     setFilter('none');
   };
 
+  
   const applyStyle = () => {
     return {
       filter: `
@@ -160,3 +161,6 @@ const CameraCapture = () => {
 };
 
 export default CameraCapture;
+
+
+
